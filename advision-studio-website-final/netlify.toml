@@ -1,0 +1,16 @@
+# Netlify — site AdVision Studio (Vite + React, routage par #)
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+  # VITE_API_URL est PUBLIQUE par nature (elle finit dans le JavaScript du site). Sans cette ligne, le scanner de
+  # secrets de Netlify la détecte dans le build et FAIT ÉCHOUER le déploiement.
+  SECRETS_SCAN_OMIT_KEYS = "VITE_API_URL"
+
+# Filet de sécurité : toute adresse tombe sur le site (aucun 404, même si on ouvre un lien profond)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
