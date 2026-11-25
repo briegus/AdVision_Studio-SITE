@@ -1,0 +1,53 @@
+/* ═══ AdVision Studio — jetons Liquid Glass (bibliothèque @dpawlikowski/liquid-glass 0.3.0) ═══════════════════════════
+   Aucune modification du paquet : seulement ses variables officielles --lg-* et quelques règles de surcharge, en noir / blanc / argent.
+   Le CSS de la bibliothèque est chargé dans la couche « lg » (sous Tailwind) : les utilitaires (rounded-*, absolute, fixed…) gardent la priorité. */
+:root {
+  --lg-tint: 214 219 228;            /* argent froid (la valeur par défaut est un blanc laiteux) */
+  --lg-opacity: 0.05;
+  --lg-blur: 6px;                    /* flou léger : la réfraction reste visible */
+  --lg-saturate: 160%;
+  --lg-border-opacity: 0.26;
+  --lg-radius: 22px;
+  --lg-shadow: 0 28px 64px rgb(0 0 0 / 0.55);
+  --lg-edge-red: rgb(255 255 255 / 0.36);    /* franges de bord : blanc et gris froid (pas de rose / cyan) */
+  --lg-edge-cyan: rgb(168 178 198 / 0.30);
+}
+@layer components {
+  /* Nappe argentée fine à la place du dégradé laiteux d'origine ; hauteur et rayon laissés aux utilitaires Tailwind */
+  .liquid-glass {
+    background: linear-gradient(var(--lg-sheen-angle), rgb(var(--lg-tint) / 0.12), rgb(var(--lg-tint) / 0.015) 42%, rgb(var(--lg-tint) / 0.06));
+    border-color: rgb(236 240 250 / var(--lg-border-opacity));
+    border-radius: var(--lg-radius);
+  }
+  .liquid-glass::after {
+    box-shadow: inset 1px 0 var(--lg-edge-red), inset -1px 0 var(--lg-edge-cyan), inset 0 1px rgb(255 255 255 / 0.5), inset 0 -24px 40px rgb(255 255 255 / 0.05);
+  }
+  /* Hiérarchie des surfaces : subtle = pilules, boutons, navigation · (défaut) = surfaces courantes · vivid = cartes et listes · vision = panneaux, formulaires, modales */
+  .liquid-glass--subtle { --lg-opacity: 0.04; --lg-blur: 5px; --lg-border-opacity: 0.30; }
+  .liquid-glass--vivid  { --lg-opacity: 0.06; --lg-blur: 6px; --lg-border-opacity: 0.42; }
+  .liquid-glass--vision { --lg-opacity: 0.06; --lg-blur: 8px; --lg-radius: 28px; --lg-border-opacity: 0.30; }
+  /* Reflet qui suit le pointeur (angle de la nappe, mis à jour par glassRuntime) : transition douce */
+  @media (hover: hover) and (prefers-reduced-motion: no-preference) { .liquid-glass { transition: --lg-sheen-angle 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); } }
+  /* Contenu enveloppé par le composant React : reste un bloc (jamais « inline ») */
+  .liquid-glass__content { display: block; }
+  /* Filtre ANIMÉ : uniquement sur les 2 surfaces marquées data-live-glass du héros, et seulement pendant que html[data-hero-live="on"] */
+  html[data-hero-live="on"] .liquid-glass[data-live-glass]:not(.liquid-glass--simple) { --lg-filter: url("#ad-hero-live"); }
+  /* Éléments de mise en page flex : le contenu n'est pas enveloppé (pas de .liquid-glass__content), le bord ::after reste fin et inoffensif. */
+
+  /* Navigateurs sans réfraction fiable (Safari, Firefox) : flou + saturation + reflets de bord, jamais de « sprite » */
+  html:not([data-lg="refract"]) .liquid-glass:not(.liquid-glass--simple) {
+    -webkit-backdrop-filter: blur(calc(var(--lg-blur) + 6px)) saturate(var(--lg-saturate));
+    backdrop-filter: blur(calc(var(--lg-blur) + 6px)) saturate(var(--lg-saturate));
+  }
+  html:not([data-lg="refract"]) .liquid-glass__refraction { display: none; }
+
+  /* Transparence réduite demandée par le système, ou garde-fou de performance : surfaces sombres opaques, bord conservé */
+  @media (prefers-reduced-transparency: reduce) {
+    .liquid-glass { background: rgb(20 20 23 / 0.97); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  }
+  html[data-lg="solid"] .liquid-glass { background: rgb(20 20 23 / 0.97); -webkit-backdrop-filter: none; backdrop-filter: none; }
+
+  /* Administration : tableaux denses → surfaces plus calmes (pas de réfraction, reflets atténués) */
+  [data-route="admin"] .liquid-glass:not(.liquid-glass--simple) { -webkit-backdrop-filter: blur(14px) saturate(120%); backdrop-filter: blur(14px) saturate(120%); }
+  [data-route="admin"] .liquid-glass::after { opacity: 0.35; }
+}
