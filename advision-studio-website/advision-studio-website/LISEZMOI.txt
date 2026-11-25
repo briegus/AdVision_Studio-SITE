@@ -1,6 +1,0 @@
-Site AdVision Studio (React 19, Vite, Tailwind 4) — à déployer sur Netlify.
-  Build : npm run build   (VITE_API_URL = adresse publique du bot sur Render ; elle sert aussi de destination aux rapports CSP, voir scripts/headers.mjs)
-  Tests : npm test        Types : npx tsc --noEmit -p .
-Liquid Glass : src/lib/glass.ts (moteur), src/lib/lensMap.ts (carte de lentille), src/components/AmbientBackdrop.tsx (fond), src/index.css (matière).
-  Diagnostic : ajouter ?glass=css (sans réfraction), ?glass=lens (réfraction forcée) à l'adresse du site.
-Guide complet : GUIDE_DEPLOIEMENT.md dans l'archive « tests-et-docs ».
